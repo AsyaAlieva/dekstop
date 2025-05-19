@@ -1,0 +1,94 @@
+from PySide6.QtWidgets import QFrame
+from PySide6.QtWidgets import QLabel
+from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QTextEdit
+from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QVBoxLayout
+from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QPushButton
+
+from PySide6.QtCore import Qt, QMimeData
+
+from PySide6.QtGui import QDragEnterEvent, QDropEvent
+
+
+class DropFileWindow(QMainWindow):
+   def __init__(self, need_docs_names: list, parent=None):
+      super().__init__(parent)
+      self.setWindowTitle("Загрузчик документов")
+      self.setAcceptDrops(True)
+      self.setMinimumSize(400, 300)
+
+      central_widget = QWidget()
+      self.setCentralWidget(central_widget)
+
+      frame = QFrame()
+      vbox = QVBoxLayout()
+
+      layout = QVBoxLayout()
+      central_widget.setLayout(layout)
+
+      default_label = QLabel(
+         "<b>Документы которые необходимо загрузить в программу:</b>")
+      vbox.addWidget(default_label)
+
+      for i, name in enumerate(need_docs_names):
+         doc_name = QLabel(f"{i+1}. {name}")
+         vbox.addWidget(doc_name)
+
+      frame.setLayout(vbox)
+
+      layout.addWidget(frame)
+
+      self.text_edit = QTextEdit()
+      self.text_edit.setPlaceholderText("Перетащите файлы сюда...")
+      layout.addWidget(self.text_edit)
+
+      self.btn_select = QPushButton("Выбрать файлы вручную")
+      self.tables_loader = QPushButton("Выгрузить таблицы")
+
+      layout.addWidget(self.btn_select)
+      layout.addWidget(self.tables_loader)
+
+      self.btn_select.clicked.connect(self.select_files)
+
+      self.text_edit.setStyleSheet("""
+         QTextEdit {
+               border: 2px dashed #aaa;
+               padding: 10px;
+               font-size: 14px;
+         }
+      """)
+
+   def dragEnterEvent(self, event: QDragEnterEvent):
+      """Обработка события "перетаскивание над окном" """
+      if event.mimeData().hasUrls():
+         event.acceptProposedAction()
+      else:
+         event.ignore()
+
+   def dropEvent(self, event: QDropEvent):
+      """Обработка события "отпускание файлов" """
+      mime_data = event.mimeData()
+      if mime_data.hasUrls():
+         file_paths = []
+         for url in mime_data.urls():
+               file_path = url.toLocalFile()
+               file_paths.append(file_path)
+
+         self.process_files(file_paths)
+         event.acceptProposedAction()
+
+   def select_files(self):
+      """Ручной выбор файлов через диалог"""
+      files, _ = QFileDialog.getOpenFileNames(
+         self, "Выберите файлы", "", "Все файлы (*)"
+      )
+      if files:
+         self.process_files(files)
+
+   def process_files(self, file_paths):
+      """Обработка и отображение путей к файлам"""
+      self.text_edit.clear()
+      for path in file_paths:
+         self.text_edit.append(path)

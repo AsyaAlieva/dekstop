@@ -1,0 +1,4 @@
+readme.txt
+.idea
+venv
+*__pycache__
