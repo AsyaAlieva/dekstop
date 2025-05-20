@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QMainWindow
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QPushButton
+from PySide6.QtWidgets import QDialog
 
 from PySide6.QtCore import Qt, QMimeData
 
@@ -13,8 +14,11 @@ from PySide6.QtGui import QDragEnterEvent, QDropEvent
 
 
 class DropFileWindow(QMainWindow):
-   def __init__(self, need_docs_names: list, parent=None):
-      super().__init__(parent)
+   def __init__(self, need_docs_names: list):
+      super().__init__()
+
+      self.load_docs_paths = list()
+
       self.setWindowTitle("Загрузчик документов")
       self.setAcceptDrops(True)
       self.setMinimumSize(400, 300)
@@ -50,8 +54,6 @@ class DropFileWindow(QMainWindow):
       layout.addWidget(self.btn_select)
       layout.addWidget(self.tables_loader)
 
-      self.btn_select.clicked.connect(self.select_files)
-
       self.text_edit.setStyleSheet("""
          QTextEdit {
                border: 2px dashed #aaa;
@@ -59,6 +61,9 @@ class DropFileWindow(QMainWindow):
                font-size: 14px;
          }
       """)
+
+      # триггеры
+      self.btn_select.clicked.connect(self.select_files)
 
    def dragEnterEvent(self, event: QDragEnterEvent):
       """Обработка события "перетаскивание над окном" """

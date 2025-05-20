@@ -38,9 +38,11 @@ class CustomMenuBar(QMenuBar):
       file_menu = QMenu("Файл", self)
       self.open_action = QAction("Войти в профиль", self)
       self.change_action = QAction("Сменить профиль", self)
+      self.exit_profile_action = QAction("Выйти из профиля", self)
       self.exit_action = QAction("Выход", self)
       file_menu.addAction(self.open_action)
       file_menu.addAction(self.change_action)
+      file_menu.addAction(self.exit_profile_action)
       file_menu.addSeparator()
       file_menu.addAction(self.exit_action)
       self.addMenu(file_menu)
@@ -91,6 +93,7 @@ class CustomMenuBar(QMenuBar):
 
       self.about_action.triggered.connect(self.show_about)
       self.open_action.triggered.connect(self.open_sign_up_win)
+      self.change_action.triggered.connect(self.open_sign_up_win)
 
    def change_theme(self):
       pass
