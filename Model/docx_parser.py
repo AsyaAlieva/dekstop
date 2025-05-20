@@ -3,21 +3,17 @@ import docx
 import pandas as pd
 
 
-TEST_DOC_PATH = ""
-
-
 class DocxParser:
-   def __init__(self):
-      self.doc = self.load_document(TEST_DOC_PATH)
+   def __init__(self, doc_path: str):
+      self.doc = self.load_document(doc_path)
 
    @staticmethod
    def load_document(path_to_docx):
       return docx.Document(docx=path_to_docx)
 
-   @staticmethod
-   def transform_to_list_of_lists(document) -> list[list[str | int | float]]:
+   def transform_to_list_of_lists(self) -> list[list[str | int | float]]:
       table_datalist = list()
-      for table in document.tables:
+      for table in self.doc.tables:
          for row in table.rows:
             row_datalist = list()
             for cell in row.cells:
@@ -30,3 +26,8 @@ class DocxParser:
       headers = datalist[0]
       data = datalist[1:]
       return pd.DataFrame(data, columns=headers)
+
+   def get_table_name(self):
+      for paragraph in self.doc.paragraphs:
+         if paragraph.text.strip():
+            return paragraph.text

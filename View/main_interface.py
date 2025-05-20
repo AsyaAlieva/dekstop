@@ -3,6 +3,8 @@ from pathlib import Path
 
 from View.DropFile import DropFileWindow
 from View.CustomMenuBar import CustomMenuBar
+from View.TableWindow import TableWin
+from Model.docx_parser import DocxParser
 
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QUrl
@@ -12,17 +14,14 @@ from PySide6.QtGui import QDesktopServices
 
 from PySide6.QtQml import QQmlApplicationEngine
 
-from PySide6.QtWidgets import QMenu
 from PySide6.QtWidgets import QLabel
 from PySide6.QtWidgets import QFrame
 from PySide6.QtWidgets import QWidget
 from PySide6.QtWidgets import QDialog
-from PySide6.QtWidgets import QMenuBar
 from PySide6.QtWidgets import QCheckBox
 from PySide6.QtWidgets import QComboBox
 from PySide6.QtWidgets import QLineEdit
 from PySide6.QtWidgets import QGroupBox
-from PySide6.QtWidgets import QTableView
 from PySide6.QtWidgets import QHBoxLayout
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QMainWindow
@@ -30,8 +29,6 @@ from PySide6.QtWidgets import QGridLayout
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QPushButton
-from PySide6.QtWidgets import QTableWidget
-from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QProgressDialog
 
 
@@ -149,6 +146,40 @@ class MainInterface(QMainWindow):
    def open_win_for_load_files(self, need_doc_names):
       self.drop_file_win = DropFileWindow(need_doc_names)
       self.drop_file_win.show()
+      self.drop_file_win.tables_loader.clicked.connect(
+         self.set_to_input_tables
+      )
+
+   def set_to_input_tables(self):
+      """Формирование таблиц из входных документов"""
+      self.input_tablWin = TableWin(
+         datalists=self.get_tables_data(),
+         input_doc_names=self.get_table_names()
+      )
+      self.input_tablWin.show()
+
+   def get_table_names(self) -> list[str]:
+      all_table_names = list()
+      docs_paths = self.get_docs_path()
+      for path in docs_paths:
+         docxparser = DocxParser(doc_path=path) # нездоровая херня - переписать
+         table_name = docxparser.get_table_name()
+         all_table_names.append(table_name)
+      return all_table_names
+
+   def get_tables_data(self) -> list[list[list]]:
+      global_data = list()
+      docs_paths = self.get_docs_path()
+      for path in docs_paths:
+         docxparser = DocxParser(doc_path=path) # нездоровая херня - переписать - объект парсера достаточно создать один раз
+         table_data = docxparser.transform_to_list_of_lists()
+         global_data.append(table_data)
+      return global_data
+
+   def get_docs_path(self) -> list:
+      """Получение путей к загруженным файлам"""
+      paths_str = self.drop_file_win.text_edit.toPlainText()
+      return paths_str.split('\n')
 
    def open_documentation(self):
       docs_dir = Path(__file__).parent / "documentation"
