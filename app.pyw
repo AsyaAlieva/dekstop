@@ -12,8 +12,13 @@ class App(MainInterface):
 
 def load_global_style():
    app = QApplication.instance()
+   app.setStyleSheet("""
+    * {
+        transition: background-color 150ms, color 150ms, border-color 150ms;
+    }
+   """)
    full_path = os.path.join(current_dir, 'View', 'static',
-                            'themes', 'light', 'styles.qss')
+                            'themes', 'light', 'styles.css')
    style_file = QFile(full_path)
    if style_file.open(QFile.ReadOnly | QFile.Text):
       stream = QTextStream(style_file)
@@ -26,4 +31,6 @@ if __name__ == "__main__":
    load_global_style()
    window = App()
    window.show()
+   from PySide6.QtCore import __version__
+   print(__version__)
    app.exec()
