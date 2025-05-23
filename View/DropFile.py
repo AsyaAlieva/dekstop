@@ -6,11 +6,14 @@ from PySide6.QtWidgets import QMainWindow
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QPushButton
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QMessageBox
 
 from PySide6.QtCore import Qt, QMimeData
 
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
+
+
+ALLOW_FILE_FORMATS = ["docx"]
 
 
 class DropFileWindow(QMainWindow):
@@ -79,10 +82,31 @@ class DropFileWindow(QMainWindow):
          file_paths = []
          for url in mime_data.urls():
                file_path = url.toLocalFile()
-               file_paths.append(file_path)
-
+               file_path = DropFileWindow.validate_path(file_path)
+               if file_path is not None:
+                  file_paths.append(file_path)
+               else:
+                  self.show_invalid_file_format_message()
+                  return
          self.process_files(file_paths)
          event.acceptProposedAction()
+
+   @staticmethod
+   def validate_path(path: str):
+      file_format = path.split(".")[-1]
+      if file_format in ALLOW_FILE_FORMATS:
+         return path
+      else:
+         return None
+
+   def show_invalid_file_format_message(self):
+      QMessageBox.warning(
+         self,
+         "Ошибка",
+         "Внимание, формат файла, который вы пытаетесь загрузить "
+         "не поддерживается. Поддерживаются только следующие форматы: "
+         f"{', '.join(ALLOW_FILE_FORMATS)}",
+         QMessageBox.Ok)
 
    def select_files(self):
       """Ручной выбор файлов через диалог"""
@@ -96,4 +120,9 @@ class DropFileWindow(QMainWindow):
       """Обработка и отображение путей к файлам"""
       self.text_edit.clear()
       for path in file_paths:
-         self.text_edit.append(path)
+         path = DropFileWindow.validate_path(path)
+         if path is not None:
+            self.text_edit.append(path)
+         else:
+            self.show_invalid_file_format_message()
+            return

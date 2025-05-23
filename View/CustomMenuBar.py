@@ -106,7 +106,6 @@ class CustomMenuBar(QMenuBar):
 
    def set_themes_names(self):
       themes = self.get_theme_names()
-      print(themes)
       for theme_name in themes:
          action = QAction(theme_name, self)
          action.setCheckable(True)
@@ -122,7 +121,7 @@ class CustomMenuBar(QMenuBar):
          path = os.path.join(
                os.path.join(
                   self.themes_path, theme_name
-               ), 'styles.qss').replace("\\", "/")
+               ), 'styles.css').replace("\\", "/")
          return path
       except Exception as e:
          print("Проблема с путями к теме")

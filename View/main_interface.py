@@ -1,14 +1,18 @@
+import os
 import json
 from pathlib import Path
 
+from View.TableWindow import TableWin
 from View.DropFile import DropFileWindow
 from View.CustomMenuBar import CustomMenuBar
-from View.TableWindow import TableWin
+
 from Model.docx_parser import DocxParser
 
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QUrl
 
+from PySide6.QtGui import QImage
+from PySide6.QtGui import QPixmap
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtGui import QDesktopServices
 
@@ -39,12 +43,13 @@ class MainInterface(QMainWindow):
       self.init_main_ui()
       self.menu_bar = CustomMenuBar(self)
       self.setMenuBar(self.menu_bar)
+      # self.set_icon()
 
       self.menu_bar.help_action.triggered.connect(self.open_documentation)
 
    def init_main_ui(self):
       self.setWindowTitle("Модуль для работы с документами")
-      self.setFixedSize(600, 300)
+      self.setFixedSize(650, 300)
 
       # Центральный виджет
       central_widget = QWidget()
@@ -65,7 +70,8 @@ class MainInterface(QMainWindow):
       # Группа справа
       groupbox_right = QGroupBox("Доп. функции")
       right_layout = QVBoxLayout()
-      right_layout.addWidget(QLabel("Для дополнительных функций"))
+      self.icon_label = QLabel(self)
+      right_layout.addWidget(self.icon_label)
       groupbox_right.setLayout(right_layout)
 
       hbox = QHBoxLayout()
@@ -127,10 +133,10 @@ class MainInterface(QMainWindow):
                                        back_to_win=self)
       )
       self.product_delivery_plan_btn.clicked.connect(
-         lambda: self.open_win_for_load_files(docs_for_task_1)
+         lambda: self.open_win_for_load_files(docs_for_task_2)
       )
       self.transport_plan_btn.clicked.connect(
-          lambda: self.open_win_for_load_files(docs_for_task_2)
+          lambda: self.open_win_for_load_files(docs_for_task_1)
       )
       self.report_product_delivery_plan_btn.clicked.connect(
          lambda: self.open_win_for_load_files(docs_for_task_3)
@@ -189,6 +195,12 @@ class MainInterface(QMainWindow):
          return
 
       QDesktopServices.openUrl(QUrl.fromLocalFile(str(html_file)))
+
+   def set_icon(self):
+      currdir = os.path.dirname(__file__)
+      print(currdir)
+      pixmap = QPixmap(os.path.join(currdir, 'static', 'images', 'icon.png'))
+      self.icon_label.setPixmap(pixmap)
 
    def closeEvent(self, event):
         reply = QMessageBox.question(

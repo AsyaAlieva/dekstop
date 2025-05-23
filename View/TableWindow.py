@@ -37,9 +37,10 @@ class TableWin(QWidget):
 
       self.vbox = QVBoxLayout()
       for table_data, table_name in zip(self.datalists, self.input_doc_names):
+         print(table_data)
+         print("-"*120)
          self.vbox.addWidget(QLabel(str(table_name)))
          self.create_and_add_table(datalist=table_data)
-         self.vbox.addWidget(QLabel("-"*50))
       hbox = QHBoxLayout()
       hbox.addWidget(self.clear_cell_btn)
       hbox.addWidget(self.clear_all_btn)
