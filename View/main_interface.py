@@ -8,6 +8,11 @@ from View.CustomMenuBar import CustomMenuBar
 
 from Model.docx_parser import DocxParser
 
+from View.static.config import DOCS_TASK_1
+from View.static.config import DOCS_TASK_2
+from View.static.config import DOCS_TASK_3
+from View.static.config import DOCS_TASK_4
+
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QUrl
 
@@ -35,15 +40,17 @@ from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QPushButton
 from PySide6.QtWidgets import QProgressDialog
 
+from Model.models.users import User
+
 
 class MainInterface(QMainWindow):
-   def __init__(self):
+   def __init__(self, user: User):
       super().__init__()
+      self.user = user
 
       self.init_main_ui()
       self.menu_bar = CustomMenuBar(self)
       self.setMenuBar(self.menu_bar)
-      # self.set_icon()
 
       self.menu_bar.help_action.triggered.connect(self.open_documentation)
 
@@ -85,35 +92,16 @@ class MainInterface(QMainWindow):
       self.tasks_win = QDialog()
       self.tasks_win.setWindowTitle("Задачи отдела сбыта")
 
-      docs_for_task_1 = [
-          "Договор поставки",
-          "Отчет об остатках на складе",
-      ]
-      docs_for_task_2 = [
-          "Договор поставки",
-          "План выпуска продукции",
-      ]
-      docs_for_task_3 = [
-          "План отгрузки готовой продукции заказчикам",
-          "Акт приемки готовой продукции",
-          "План перевозки продукции",
-      ]
-      docs_for_task_4 = [
-          "Недельный отчет об отгрузке продукции заказчикам",
-          "Акт поступления готовой продукции",
-          "Отчет об остатках на складе на конец прошлого года",
-      ]
-
       grid_layout = QGridLayout()
-      self.transport_plan_btn = QPushButton("Составление плана перевозки")
+      self.transport_plan_btn = QPushButton(DOCS_TASK_1.get("short_task_name"))
       self.product_delivery_plan_btn = QPushButton(
-         "Составление плана поставки готовой продукции заказчикам"
+         DOCS_TASK_2.get("short_task_name")
       )
       self.report_product_delivery_plan_btn = QPushButton(
-         "Отчет о выполнении плана поставки готовой продукции закзачикам"
+         DOCS_TASK_3.get("short_task_name")
       )
       self.stock_balances_report_btn = QPushButton(
-         "Отчет об остатках на складе"
+         DOCS_TASK_3.get("short_task_name")
       )
       self.back_btn = QPushButton("Назад")
 
@@ -132,35 +120,48 @@ class MainInterface(QMainWindow):
          lambda: self.back_win_clicked(close_win=self.tasks_win,
                                        back_to_win=self)
       )
-      self.product_delivery_plan_btn.clicked.connect(
-         lambda: self.open_win_for_load_files(docs_for_task_2)
-      )
       self.transport_plan_btn.clicked.connect(
-          lambda: self.open_win_for_load_files(docs_for_task_1)
+         lambda: self.open_win_for_load_files(
+            DOCS_TASK_1.get("input_doc_names"),
+            DOCS_TASK_1.get("short_task_name")
+         )
+      )
+      self.product_delivery_plan_btn.clicked.connect(
+         lambda: self.open_win_for_load_files(
+            DOCS_TASK_2.get("input_doc_names"),
+            DOCS_TASK_2.get("short_task_name")
+         )
       )
       self.report_product_delivery_plan_btn.clicked.connect(
-         lambda: self.open_win_for_load_files(docs_for_task_3)
+         lambda: self.open_win_for_load_files(
+            DOCS_TASK_3.get("input_doc_names"),
+            DOCS_TASK_3.get("short_task_name")
+         )
       )
       self.stock_balances_report_btn.clicked.connect(
-         lambda: self.open_win_for_load_files(docs_for_task_4)
+         lambda: self.open_win_for_load_files(
+            DOCS_TASK_4.get("input_doc_names"),
+            DOCS_TASK_4.get("short_task_name")
+         )
       )
 
    def back_win_clicked(self, close_win, back_to_win):
       close_win.close()
       back_to_win.setVisible(True)
 
-   def open_win_for_load_files(self, need_doc_names):
-      self.drop_file_win = DropFileWindow(need_doc_names)
+   def open_win_for_load_files(self, input_doc_names, output_doc_name):
+      self.drop_file_win = DropFileWindow(input_doc_names, output_doc_name)
       self.drop_file_win.show()
       self.drop_file_win.tables_loader.clicked.connect(
-         self.set_to_input_tables
+         lambda: self.set_to_input_tables(output_doc_name)
       )
 
-   def set_to_input_tables(self):
+   def set_to_input_tables(self, output_doc_name: str):
       """Формирование таблиц из входных документов"""
       self.input_tablWin = TableWin(
          datalists=self.get_tables_data(),
-         input_doc_names=self.get_table_names()
+         input_doc_names=self.get_table_names(),
+         output_doc_name=output_doc_name
       )
       self.input_tablWin.show()
 
@@ -198,7 +199,7 @@ class MainInterface(QMainWindow):
 
    def set_icon(self):
       currdir = os.path.dirname(__file__)
-      print(currdir)
+      # print(currdir)
       pixmap = QPixmap(os.path.join(currdir, 'static', 'images', 'icon.png'))
       self.icon_label.setPixmap(pixmap)
 

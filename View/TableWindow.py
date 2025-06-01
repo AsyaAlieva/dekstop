@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from View.static.config import DOCS_TASK_1
+from View.static.config import DOCS_TASK_2
+from View.static.config import DOCS_TASK_3
+from View.static.config import DOCS_TASK_4
+
 from PySide6.QtWidgets import QHBoxLayout
 from PySide6.QtWidgets import QHeaderView
 from PySide6.QtWidgets import QSizePolicy
@@ -37,8 +42,6 @@ class TableWin(QWidget):
 
       self.vbox = QVBoxLayout()
       for table_data, table_name in zip(self.datalists, self.input_doc_names):
-         print(table_data)
-         print("-"*120)
          self.vbox.addWidget(QLabel(str(table_name)))
          self.create_and_add_table(datalist=table_data)
       hbox = QHBoxLayout()

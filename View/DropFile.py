@@ -17,7 +17,7 @@ ALLOW_FILE_FORMATS = ["docx"]
 
 
 class DropFileWindow(QMainWindow):
-   def __init__(self, need_docs_names: list):
+   def __init__(self, need_docs_names: list, output_doc_name: str):
       super().__init__()
 
       self.load_docs_paths = list()
@@ -35,8 +35,13 @@ class DropFileWindow(QMainWindow):
       layout = QVBoxLayout()
       central_widget.setLayout(layout)
 
+      output_doc_name_label = QLabel(f"<b>{output_doc_name}</b>")
+      separator = QLabel("-"*len(output_doc_name)*3)
+
       default_label = QLabel(
-         "<b>Документы которые необходимо загрузить в программу:</b>")
+         "Документы которые необходимо загрузить в программу:")
+      vbox.addWidget(output_doc_name_label)
+      vbox.addWidget(separator)
       vbox.addWidget(default_label)
 
       for i, name in enumerate(need_docs_names):

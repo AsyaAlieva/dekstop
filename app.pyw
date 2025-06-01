@@ -1,17 +1,25 @@
 import os
+import sys
+from dotenv import load_dotenv
+
+from PySide6.QtCore import QFile
+from PySide6.QtCore import QTextStream
+from PySide6.QtWidgets import QDialog
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QFile, QTextStream
+from PySide6.QtWidgets import QMessageBox
+
 from View.main_interface import MainInterface
-
-current_dir = os.path.dirname(__file__)
-
-class App(MainInterface):
-   def __init__(self):
-      super().__init__()
+from View.SignUp import SignUp
+from Model.database.db_handler import create_session
+from Model.auth.service import AuthService
 
 
-def load_global_style():
-   app = QApplication.instance()
+load_dotenv()
+db_url = os.getenv("DB_URL")
+
+
+def load_styles(app: QApplication):
+   current_dir = os.path.dirname(__file__)
    app.setStyleSheet("""
     * {
         transition: background-color 150ms, color 150ms, border-color 150ms;
@@ -26,11 +34,31 @@ def load_global_style():
       style_file.close()
 
 
+def main():
+   try:
+      app = QApplication(sys.argv)
+
+      load_styles(app)
+
+      db_session = create_session(db_url) # инициализация БДшки
+      
+      auth_service = AuthService(db_session) # создание сервиса авторизации
+
+      login_win = SignUp(auth_service)
+      if login_win.exec() == QDialog.Accepted:
+         window = MainInterface(login_win.user)
+         window.show()
+         return app.exec()
+      else:
+         return 0
+   except Exception as e:
+      QMessageBox.critical(
+         None,
+         "Fatal Error",
+         f"Application crashed: {str(e)}\nSee logs for details."
+      )
+      return 1
+
+
 if __name__ == "__main__":
-   app = QApplication([])
-   load_global_style()
-   window = App()
-   window.show()
-   from PySide6.QtCore import __version__
-   print(__version__)
-   app.exec()
+   sys.exit(main())

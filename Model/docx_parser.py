@@ -22,9 +22,20 @@ class DocxParser:
       return table_datalist
 
    @staticmethod
-   def transform_to_dataframe(datalist: list[list]) -> pd.DataFrame:
-      headers = datalist[0]
-      data = datalist[1:]
+   def transform_to_dataframe(datalist: list[list], headers_count: int = 1) -> pd.DataFrame:
+      if headers_count == 1:
+         headers = datalist[0]
+         data = datalist[1:]
+      elif headers_count > 1:
+         raw_headers = datalist[:headers_count]
+         merge_headers = dict()
+         for idx, header_list in enumerate(raw_headers):
+            columns_count = len(header_list)
+            for col_index in range(columns_count):
+               if header_list[col_index] == header_list[col_index+1]:
+                  merge_headers[col_index] = header_list[col_index]
+         print(merge_headers)
+         data = datalist[headers_count:]
       return pd.DataFrame(data, columns=headers)
 
    def get_table_name(self):
