@@ -8,8 +8,6 @@ from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QPushButton
 from PySide6.QtWidgets import QMessageBox
 
-from PySide6.QtCore import Qt, QMimeData
-
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 
 

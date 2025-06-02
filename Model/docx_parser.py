@@ -1,10 +1,11 @@
 import os
 import docx
 import pandas as pd
+from datetime import datetime
 
 
 class DocxParser:
-   def __init__(self, doc_path: str):
+   def __init__(self, doc_path: str=None):
       self.doc = self.load_document(doc_path)
 
    @staticmethod
@@ -42,3 +43,27 @@ class DocxParser:
       for paragraph in self.doc.paragraphs:
          if paragraph.text.strip():
             return paragraph.text
+
+   @staticmethod
+   def compute_for_output_table_4(dfs_list: list[pd.DataFrame]):
+      df_1 = dfs_list[0]
+      df_2 = dfs_list[1]
+      df_3 = dfs_list[2]
+
+      now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+      data = {
+        "Наименование продукции": df_1.iloc[:, 0].values,
+        "Количество на складе": (df_2.iloc[:, 1].astype(int).values +
+                                 df_3.iloc[:, 1].astype(int).values -
+                                 df_1.iloc[:, 1].astype(int).values),
+        "Единица измерения": df_1.iloc[:, 2].values,
+        "Дата": [now] * len(df_1)
+      }
+
+      output_df = pd.DataFrame(data, columns=data.keys())
+      n_cols = len(output_df.columns)
+      numeration_row = list(range(1, n_cols + 1))
+      output_df.loc[-1] = numeration_row
+      output_df = output_df.sort_index().reset_index(drop=True)
+      output_df = output_df.astype(str)
+      return output_df

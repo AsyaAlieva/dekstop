@@ -1,5 +1,4 @@
 import os
-import json
 from pathlib import Path
 
 from View.TableWindow import TableWin
@@ -16,29 +15,19 @@ from View.static.config import DOCS_TASK_4
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QUrl
 
-from PySide6.QtGui import QImage
 from PySide6.QtGui import QPixmap
-from PySide6.QtGui import QGuiApplication
 from PySide6.QtGui import QDesktopServices
 
-from PySide6.QtQml import QQmlApplicationEngine
-
 from PySide6.QtWidgets import QLabel
-from PySide6.QtWidgets import QFrame
 from PySide6.QtWidgets import QWidget
 from PySide6.QtWidgets import QDialog
-from PySide6.QtWidgets import QCheckBox
-from PySide6.QtWidgets import QComboBox
-from PySide6.QtWidgets import QLineEdit
 from PySide6.QtWidgets import QGroupBox
 from PySide6.QtWidgets import QHBoxLayout
 from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QMainWindow
 from PySide6.QtWidgets import QGridLayout
-from PySide6.QtWidgets import QFileDialog
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QPushButton
-from PySide6.QtWidgets import QProgressDialog
 
 from Model.models.users import User
 
@@ -101,15 +90,17 @@ class MainInterface(QMainWindow):
          DOCS_TASK_3.get("short_task_name")
       )
       self.stock_balances_report_btn = QPushButton(
-         DOCS_TASK_3.get("short_task_name")
+         DOCS_TASK_4.get("short_task_name")
       )
       self.back_btn = QPushButton("Назад")
+      self.directory_btn = QPushButton("Справочники")
 
       grid_layout.addWidget(self.transport_plan_btn, 0, 0, 1, 2)
       grid_layout.addWidget(self.product_delivery_plan_btn, 1, 0, 1, 2)
       grid_layout.addWidget(self.report_product_delivery_plan_btn, 2, 0, 1, 2)
       grid_layout.addWidget(self.stock_balances_report_btn, 3, 0, 1, 2)
-      grid_layout.addWidget(self.back_btn, 3, 3, 1, 1)
+      grid_layout.addWidget(self.directory_btn, 4, 0, 1, 2)
+      grid_layout.addWidget(self.back_btn, 4, 4, 1, 1)
 
       self.tasks_win.setLayout(grid_layout)
 
@@ -145,7 +136,29 @@ class MainInterface(QMainWindow):
          )
       )
 
-   def back_win_clicked(self, close_win, back_to_win):
+      self.directory_btn.clicked.connect(
+         self.open_directories
+      )
+
+   def open_directories(self):
+      self.directory_tab_win = QWidget()
+      dir_list = [["1", "2", "3"], ["1", "2", "3"]] # временный список
+      back_from_tab_btn = QPushButton("Назад")
+      vbox = QVBoxLayout()
+      TableWin.create_and_add_table(datalist=dir_list, vbox=vbox)
+      hbox = QHBoxLayout()
+      hbox.addWidget(back_from_tab_btn)
+      vbox.addLayout(hbox)
+      self.directory_tab_win.setLayout(vbox)
+
+      back_from_tab_btn.clicked.connect(
+         lambda: self.back_win_clicked(
+            close_win=self.directory_tab_win, back_to_win=self)
+      )
+
+
+   @staticmethod
+   def back_win_clicked(close_win, back_to_win):
       close_win.close()
       back_to_win.setVisible(True)
 

@@ -8,10 +8,11 @@ from PySide6.QtWidgets import QDialog
 from PySide6.QtWidgets import QApplication
 from PySide6.QtWidgets import QMessageBox
 
-from View.main_interface import MainInterface
 from View.SignUp import SignUp
-from Model.database.db_handler import create_session
+from View.main_interface import MainInterface
+
 from Model.auth.service import AuthService
+from Model.database.db_handler import create_session
 
 
 load_dotenv()
@@ -41,7 +42,7 @@ def main():
       load_styles(app)
 
       db_session = create_session(db_url) # инициализация БДшки
-      
+
       auth_service = AuthService(db_session) # создание сервиса авторизации
 
       login_win = SignUp(auth_service)
