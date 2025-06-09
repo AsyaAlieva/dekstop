@@ -34,3 +34,6 @@ class AuthService:
             print(error)
             raise RuntimeError("Не удалось создать пользователя из-за ограничений базы данных")
       return user
+
+   def get_user(self):
+      pass

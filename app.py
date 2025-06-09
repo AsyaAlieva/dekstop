@@ -1,6 +1,5 @@
 import os
 import sys
-from dotenv import load_dotenv
 
 from PySide6.QtCore import QFile
 from PySide6.QtCore import QTextStream
@@ -12,11 +11,9 @@ from View.SignUp import SignUp
 from View.main_interface import MainInterface
 
 from Model.auth.service import AuthService
-from Model.database.db_handler import create_session
+from Model.database.data_service import SessionFactory
 
 
-load_dotenv()
-db_url = os.getenv("DB_URL")
 
 
 def load_styles(app: QApplication):
@@ -41,9 +38,7 @@ def main():
 
       load_styles(app)
 
-      db_session = create_session(db_url) # инициализация БДшки
-
-      auth_service = AuthService(db_session) # создание сервиса авторизации
+      auth_service = AuthService(SessionFactory)
 
       login_win = SignUp(auth_service)
       if login_win.exec() == QDialog.Accepted:

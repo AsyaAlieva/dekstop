@@ -121,7 +121,7 @@ class DropFileWindow(QMainWindow):
 
    def process_files(self, file_paths):
       """Обработка и отображение путей к файлам"""
-      self.text_edit.clear()
+      # self.text_edit.clear()
       for path in file_paths:
          path = DropFileWindow.validate_path(path)
          if path is not None:

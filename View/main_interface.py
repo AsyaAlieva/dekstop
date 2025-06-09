@@ -5,7 +5,7 @@ from View.TableWindow import TableWin
 from View.DropFile import DropFileWindow
 from View.CustomMenuBar import CustomMenuBar
 
-from Model.docx_parser import DocxParser
+from Model.services.docx_parser import DocxParser
 
 from View.static.config import DOCS_TASK_1
 from View.static.config import DOCS_TASK_2
@@ -40,6 +40,7 @@ class MainInterface(QMainWindow):
       self.init_main_ui()
       self.menu_bar = CustomMenuBar(self)
       self.setMenuBar(self.menu_bar)
+      self.parser = DocxParser()
 
       self.menu_bar.help_action.triggered.connect(self.open_documentation)
 
@@ -142,19 +143,23 @@ class MainInterface(QMainWindow):
 
    def open_directories(self):
       self.directory_tab_win = QWidget()
-      dir_list = [["1", "2", "3"], ["1", "2", "3"]] # временный список
-      back_from_tab_btn = QPushButton("Назад")
+      self.directory_tab_win.setWindowTitle("Справочник цен")
+      self.directory_tab_win.setFixedSize(550, 600)
+      doc = self.parser.load_document(os.path.join("View", "тариф.docx"))
+      dir_list = self.parser.get_table_as_lists(doc)
+      close_from_tab_btn = QPushButton("Закрыть")
       vbox = QVBoxLayout()
       TableWin.create_and_add_table(datalist=dir_list, vbox=vbox)
       hbox = QHBoxLayout()
-      hbox.addWidget(back_from_tab_btn)
+      hbox.addWidget(close_from_tab_btn)
       vbox.addLayout(hbox)
       self.directory_tab_win.setLayout(vbox)
 
-      back_from_tab_btn.clicked.connect(
+      close_from_tab_btn.clicked.connect(
          lambda: self.back_win_clicked(
             close_win=self.directory_tab_win, back_to_win=self)
       )
+      self.directory_tab_win.show()
 
 
    @staticmethod
@@ -182,8 +187,8 @@ class MainInterface(QMainWindow):
       all_table_names = list()
       docs_paths = self.get_docs_path()
       for path in docs_paths:
-         docxparser = DocxParser(doc_path=path) # нездоровая херня - переписать
-         table_name = docxparser.get_table_name()
+         doc =self.parser.load_document(path)
+         table_name = self.parser.get_paragraph(doc)
          all_table_names.append(table_name)
       return all_table_names
 
@@ -191,15 +196,27 @@ class MainInterface(QMainWindow):
       global_data = list()
       docs_paths = self.get_docs_path()
       for path in docs_paths:
-         docxparser = DocxParser(doc_path=path) # нездоровая херня - переписать - объект парсера достаточно создать один раз
-         table_data = docxparser.transform_to_list_of_lists()
+         doc =self.parser.load_document(path)
+         table_data = self.parser.get_table_as_lists(doc)
          global_data.append(table_data)
+         self.parser.transform_to_dataframe(table_data) # !!!!!!!!!!!!!!!!!!
       return global_data
 
-   def get_docs_path(self) -> list:
+   def get_docs_path(self) -> list[str]:
       """Получение путей к загруженным файлам"""
       paths_str = self.drop_file_win.text_edit.toPlainText()
-      return paths_str.split('\n')
+      paths_strs = paths_str.split('\n')
+      new_paths = []
+      for path in paths_strs:
+         if 'file:///' in path:
+            new_path = path.replace('file:///', '')
+         elif 'file://' in path:
+            new_path = path.replace('file://', '')
+         else:
+            new_path = path
+         if new_path:
+            new_paths.append(new_path)
+      return new_paths
 
    def open_documentation(self):
       docs_dir = Path(__file__).parent / "documentation"
@@ -212,7 +229,6 @@ class MainInterface(QMainWindow):
 
    def set_icon(self):
       currdir = os.path.dirname(__file__)
-      # print(currdir)
       pixmap = QPixmap(os.path.join(currdir, 'static', 'images', 'icon.png'))
       self.icon_label.setPixmap(pixmap)
 
