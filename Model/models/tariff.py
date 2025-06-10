@@ -12,3 +12,6 @@ class Tariff(Base):
    distance = Column(Numeric(10, 2), nullable=False)
    city = Column(String(50), nullable=False)
    warehouse = Column(String(80), nullable=False)
+
+   def as_dict(self):
+      return {c.name: getattr(self, c.name) for c in self.__tablename__.columns}

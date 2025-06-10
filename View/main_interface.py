@@ -30,6 +30,8 @@ from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QPushButton
 
 from Model.models.users import User
+from Model.operations.outputs import Tariff
+from Model.database.data_service import SessionFactory
 
 
 class MainInterface(QMainWindow):
@@ -137,19 +139,29 @@ class MainInterface(QMainWindow):
          )
       )
 
-      self.directory_btn.clicked.connect(
-         self.open_directories
-      )
+      self.directory_btn.clicked.connect(self.open_directories)
+      self.directory_btn.clicked.connect(self.get_tariff_data)
+
+   def get_tariff_data(self):
+      tariff_data = [[
+         'Тариф (руб)',
+         'Расстояние (км)',
+         'Город',
+         'Склад',
+      ]]
+      operations = Tariff(SessionFactory)
+      for row in operations.read_all():
+         tariff_data.append(row)
+      return tariff_data
 
    def open_directories(self):
       self.directory_tab_win = QWidget()
       self.directory_tab_win.setWindowTitle("Справочник цен")
       self.directory_tab_win.setFixedSize(550, 600)
-      doc = self.parser.load_document(os.path.join("View", "тариф.docx"))
-      dir_list = self.parser.get_table_as_lists(doc)
+      tariff_data = self.get_tariff_data()
       close_from_tab_btn = QPushButton("Закрыть")
       vbox = QVBoxLayout()
-      TableWin.create_and_add_table(datalist=dir_list, vbox=vbox)
+      TableWin.create_and_add_table(datalist=tariff_data, vbox=vbox)
       hbox = QHBoxLayout()
       hbox.addWidget(close_from_tab_btn)
       vbox.addLayout(hbox)

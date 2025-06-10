@@ -251,7 +251,6 @@ class TableWin(QWidget):
                   if key == model.headerData(column, Qt.Horizontal):
                      row_data[value] = item.text()
             data.append(row_data)
-      print(data)
       return data
 
 

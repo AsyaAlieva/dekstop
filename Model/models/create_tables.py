@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from warehouse_balance import Base
+from Model.models.outputs import Base
 from tariff import Base
 
 
